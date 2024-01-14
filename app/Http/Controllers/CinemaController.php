@@ -12,7 +12,8 @@ class CinemaController extends Controller
      */
     public function index()
     {
-        return Cinema::all();
+        $cinemas = Cinema::all();
+        return json_encode($cinemas);
     }
 
     /**
@@ -27,13 +28,11 @@ class CinemaController extends Controller
     {
         $data = $request->validate([
             'name' => 'string',
-            'numberOfRows' => 'integer',
-            'numberOfSeat' => 'integer',
-            'isActive' => '',
+            'numberOfRows' => 'number',
+            'numberOfSeat' => 'number',
+            'isActive' => 'boolean',
         ]);
-        $data['isActive'] = $data['isActive'] ?? false;
-        Cinema::create($data);
-        return redirect()->back();
+        return Cinema::create($data);
     }
 
     /**
@@ -41,7 +40,7 @@ class CinemaController extends Controller
      */
     public function show(Cinema $cinema)
     {
-        //
+        return $cinema;
     }
 
     /**
@@ -55,16 +54,24 @@ class CinemaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Cinema $cinema)
+    public function update(Request $request, Cinema $id)
     {
-        //
+        $cinema = Cinema::find($id)->first();
+        $cinema->update($request->all());
+        $cinema->save();
+        return $cinema;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Cinema $cinema)
+    public function destroy(Cinema $id)
     {
-        //
+        $cinema = Cinema::find($id);
+        $cinema[0]->delete();
+        $test = Cinema::find($id);
+        return response($test ?? 'OK', 200);
     }
 }
+
+
