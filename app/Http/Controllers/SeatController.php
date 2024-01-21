@@ -37,7 +37,7 @@ class SeatController extends Controller
             'isEmploy' => $request['isEmploy']
         ]);
 
-//        for ($i = 3; $i < count($request); $i++) {
+//        for ($i = 0; $i < count($request); $i++) {
 //            Seat::create([
 //                'cinemaId' => $request[$i]['cinemaId'],
 //                'row' => $request[$i]['row'],
@@ -46,7 +46,7 @@ class SeatController extends Controller
 //                'isEmploy' => $request[$i]['isEmploy']
 //            ]);
 
-//            $seat = new Role();
+//            $seat = new Seat();
 //            $seat->cinemaId = $request[$i]->get('cinemaId');
 //            $seat->row = $request[$i]->get('row');
 //            $seat->seat = $request[$i]->get('seat');
@@ -81,19 +81,18 @@ class SeatController extends Controller
      */
     public function update(Request $request, Seat $id)
     {
-        Seat::find($id)
-            ->first()
-            ->update($request->all())
-            ->save();
-
-        return response()->json(['status' => 'success']);
+        $seat = Seat::find($id)->first();
+        $seat->update($request->all());
+        $seat->save();
+        return $seat;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Seat $seat)
+    public function destroy(Seat $id)
     {
-        //
+        $seat = Seat::find($id);
+        return $seat[0]->delete();
     }
 }

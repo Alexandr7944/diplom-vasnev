@@ -21,6 +21,7 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
     const initSeats = async () => {
         const response = await fetch(`/api/seats/${checkedCinema.id}`);
         if (!response.ok) throw new Error('Error fetching');
+
         const result = await response.json();
         if (!result.length)
             return setSeats([]);
@@ -34,27 +35,17 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
         setSeats(arr);
     }
 
-    const checkedCinemaArray = () => {
-        const arr = [];
-        if (!rowsAndSeats.numberOfRows || !rowsAndSeats.numberOfSeat) {
-            return [[]];
+    const seatElement = (row, seat) => {
+        return {
+            row,
+            seat,
+            cinemaId: checkedCinema.id,
+            status: 'standart',
+            isEmploy: false,
         }
-        for (let i = 0; i < rowsAndSeats.numberOfRows; i++) {
-            arr.push([]);
-            for (let j = 0; j < rowsAndSeats.numberOfSeat; j++) {
-                arr[i].push({
-                    row: i + 1,
-                    seat: j + 1,
-                    cinemaId: checkedCinema.id,
-                    status: 'standart',
-                    isEmploy: false,
-                });
-            }
-        }
-        return arr;
     }
 
-    const changeStatus = ({row, seat, status}) => {
+    const changeStatusSeat = ({row, seat, status}) => {
         const indexStatus = statuses.indexOf(status);
         const newStatus = statuses[indexStatus + 1] || statuses[0];
         setSeats((prevState) => {
@@ -65,10 +56,41 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
     }
 
     const resetRowsAndSeats = () => {
-        setRowsAndSeats({
-            numberOfRows: checkedCinema.numberOfRows,
-            numberOfSeat: checkedCinema.numberOfSeat
-        })
+        for (const name in rowsAndSeats) {
+            updateRowsAndSeats({
+                target: {name, value: checkedCinema[name]}
+            });
+        }
+    };
+
+    const updateRowsAndSeats = ({target}) => {
+        const {name, value} = target;
+        const result = [];
+        if (name === 'numberOfRows') {
+            for (let i = 0; i < +value; i++) {
+                if (seats[i]) {
+                    result.push(seats[i]);
+                    continue;
+                }
+                const newRow = [];
+                for (let j = 0; j < rowsAndSeats.numberOfSeat; j++) {
+                    newRow.push(seatElement(+i + 1, j + 1));
+                }
+                result.push(newRow);
+            }
+        } else {
+            for (let i = 0; i < rowsAndSeats.numberOfRows; i++) {
+                const newRow = [];
+                for (let j = 0; j < +value; j++) {
+                    seats[i]?.[j]
+                        ? newRow.push(seats[i][j])
+                        : newRow.push(seatElement(i + 1, j + 1));
+                }
+                result.push(newRow);
+            }
+        }
+        setSeats(result);
+        setRowsAndSeats(prev => ({...prev, [name]: value}));
     };
 
     const updateCinema = async () => {
@@ -80,19 +102,19 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
             }),
             headers: {'Content-Type': 'application/json',}
         });
-        if (!response.ok) {
+        if (!response.ok)
             return console.error(response);
-        }
+
         const data = await response.json();
         setCinemas(cinemas.map(cinema =>
             cinema.id === data.id ? data : cinema
         ));
     }
 
-    const changeSeats = async (url, method, seats) => {
+    const changeSeats = async (url, method, seat) => {
         const response = await fetch(url, {
             method,
-            body: JSON.stringify(seats),
+            body: JSON.stringify(seat),
             headers: {'Content-Type': 'application/json',}
         });
         if (!response.ok)
@@ -104,34 +126,21 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
     const update = async () => {
         try {
             for await (const seat of seats.flat()) {
-                if (seat.id) {
-                    await changeSeats(`/api/seats/${seat.id}`, 'PATCH', seat)
-                } else {
-                    await changeSeats(`/api/seats/store`, 'POST', seat);
-                }
-            }
+                if (seat.id)
+                    await changeSeats(`/api/seats/${seat.id}`, 'delete', {});
 
-            // await changeSeats(`/api/seats/${checkedCinema.id}`, 'PATCH', seats.flat().filter(({id}) => id));
-            // await changeSeats(`/api/seats/store`, 'POST', seats.flat().filter(({id}) => !id));
-            // await changeSeats(`/api/seats/${checkedCinema.id}`, 'DELETE', seats.filter(({id}) => id));
-            // await updateCinema();
+                await changeSeats(`/api/seats/store`, 'POST', seat);
+            }
+            await updateCinema();
         } catch (e) {
             console.error(e);
         }
     }
 
     useEffect(() => {
-        cinemas[0] && setCheckedCinema(Object.assign({}, cinemas[0]));
-    }, [cinemas]);
-
-    useEffect(() => {
         resetRowsAndSeats();
         initSeats();
     }, [checkedCinema]);
-
-    useEffect(() => {
-        setSeats(checkedCinemaArray());
-    }, [rowsAndSeats]);
 
     return (
         <section className="conf-step">
@@ -159,17 +168,23 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
                 <div className="conf-step__legend">
                     <label className="conf-step__label">
                         Рядов, шт
-                        <input type="number" className="conf-step__input" placeholder="10"
+                        <input type="number"
+                               className="conf-step__input"
+                               placeholder="10"
+                               name="numberOfRows"
                                value={rowsAndSeats.numberOfRows}
-                               onChange={e => setRowsAndSeats({...rowsAndSeats, numberOfRows: +e.target.value})}
+                               onChange={updateRowsAndSeats}
                         />
                     </label>
                     <span className="multiplier">x</span>
                     <label className="conf-step__label">
                         Мест, шт
-                        <input type="number" className="conf-step__input" placeholder="8"
+                        <input type="number"
+                               className="conf-step__input"
+                               placeholder="8"
+                               name="numberOfSeat"
                                value={rowsAndSeats.numberOfSeat}
-                               onChange={e => setRowsAndSeats({...rowsAndSeats, numberOfSeat: +e.target.value})}
+                               onChange={updateRowsAndSeats}
                         />
                     </label>
                 </div>
@@ -187,10 +202,10 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
                     <div className="conf-step__hall-wrapper">
                         {seats.map((row, i) =>
                             <div key={i} className="conf-step__row">
-                                {row.map((item) =>
-                                    <span key={`${item.row}-${item.seat}`}
+                                {row?.map((item) =>
+                                    <span key={`${item.row}-${item.seat}-${Date.now()}`}
                                           className={`conf-step__chair ${typeSeat[item.status]}`}
-                                          onClick={() => changeStatus(item)}></span>
+                                          onClick={() => changeStatusSeat(item)}></span>
                                 )}
                             </div>
                         )}
