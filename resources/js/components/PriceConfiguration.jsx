@@ -44,6 +44,10 @@ const PriceConfiguration = ({cinemas, setCinemas}) => {
         ));
     }
 
+    useEffect(() => {
+        resetPrice();
+    }, [checkedCinema]);
+
     return (
         <section className="conf-step">
             <header className={'conf-step__header ' + classHeader}

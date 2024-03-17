@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import './styles-admin.scss';
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import CinemasList from "@/components/CinemasList.jsx";
 import ConfigCinema from "@/components/ConfigCinema.jsx";
 import PriceConfiguration from "@/components/PriceConfiguration.jsx";
