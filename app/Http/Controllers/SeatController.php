@@ -15,13 +15,9 @@ class SeatController extends Controller
         $data = Seat::where('cinemaId', $idCinema)->get();
         return json_encode($data);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function findOne(Seat $id)
     {
-        //
+        return json_encode($id);
     }
 
     /**
@@ -33,47 +29,21 @@ class SeatController extends Controller
             'cinemaId' => $request['cinemaId'],
             'row' => $request['row'],
             'seat' => $request['seat'],
-            'status' => $request['status'],
-            'isEmploy' => $request['isEmploy']
+            'status' => $request['status']
         ]);
-
-//        for ($i = 0; $i < count($request); $i++) {
-//            Seat::create([
-//                'cinemaId' => $request[$i]['cinemaId'],
-//                'row' => $request[$i]['row'],
-//                'seat' => $request[$i]['seat'],
-//                'status' => $request[$i]['status'],
-//                'isEmploy' => $request[$i]['isEmploy']
-//            ]);
-
-//            $seat = new Seat();
-//            $seat->cinemaId = $request[$i]->get('cinemaId');
-//            $seat->row = $request[$i]->get('row');
-//            $seat->seat = $request[$i]->get('seat');
-//            $seat->status = $request[$i]->get('status');
-//            $seat->isEmploy = $request[$i]->get('isEmploy');
-//            $seat->save();
-//        }
-//        return Seat::where('cinemaId', $request[0]['cinemaId'])->get();
-
-        // почему-то работает при еденичном сохранении,
-        // но не работает в цикле (предпологаю из-за асинхронности)
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Seat $seat)
+    public function storeCinema(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Seat $seat)
-    {
-        //
+        foreach ($request->all() as $item) {
+            Seat::create([
+                'cinemaId' => $item['cinemaId'],
+                'row' => $item['row'],
+                'seat' => $item['seat'],
+                'status' => $item['status']
+            ]);
+        }
+        return Seat::where('cinemaId', $request[0]['cinemaId'])->get();
     }
 
     /**
@@ -81,10 +51,10 @@ class SeatController extends Controller
      */
     public function update(Request $request, Seat $id)
     {
-        $seat = Seat::find($id)->first();
-        $seat->update($request->all());
-        $seat->save();
-        return $seat;
+        return Seat::find($id)
+            ->first()
+            ->update($request->all())
+            ->save();
     }
 
     /**
@@ -92,7 +62,13 @@ class SeatController extends Controller
      */
     public function destroy(Seat $id)
     {
-        $seat = Seat::find($id);
-        return $seat[0]->delete();
+        return Seat::find($id)
+            ->first()
+            ->delete();
+    }
+
+    public function destroyCinema($id)
+    {
+        return Seat::where('cinemaId', $id)->delete();
     }
 }

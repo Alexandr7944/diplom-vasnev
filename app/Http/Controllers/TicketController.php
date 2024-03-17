@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cinema;
+use App\Models\Movie;
+use App\Models\Seat;
+use App\Models\Session;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 
@@ -12,15 +16,26 @@ class TicketController extends Controller
      */
     public function index()
     {
-        //
+        return Ticket::all();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @param {number-number-number}$id
+     * @return false|string
      */
-    public function create()
+    public function findOne($id)
     {
-        //
+        $ids = explode('-', $id);
+        $data = [];
+        foreach ($ids as $id) {
+            $item = Ticket::find($id);
+            $item['session'] = Session::find($item['sessionId']);
+            $item['seat'] = Seat::find($item['seatId']);
+            $item['movie'] = Movie::find($item['session']['movieId']);
+            $item['cinema'] = Cinema::find($item['session']['cinemaId']);
+            $data[] = $item;
+        }
+        return json_encode($data);
     }
 
     /**
@@ -28,31 +43,18 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return Ticket::create([
+            'sessionId' => $request['sessionId'],
+            'seatId' => $request['seatId'],
+            'QR' => $request['QR'],
+            'price' => $request['price'],
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Ticket $ticket)
+    public function update(Request $request, Ticket $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ticket $ticket)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Ticket $ticket)
-    {
-        //
+        Ticket::find($id)->first()->update($request->all());
+        return Ticket::find($id)->first();
     }
 
     /**

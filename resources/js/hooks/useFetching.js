@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 
-const useFetching = ( url, opts = {}) => {
-    const [ data, setData ] = useState();
-    const [ loading, setLoading ] = useState(false);
-    const [ error, setError ] = useState('');
+const useFetching = (url, opts = {}) => {
+    const [data, setData] = useState();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         setLoading(true);
-        const fethData = async () => {
+        const fetchData = async () => {
             try {
                 const response = await fetch(url, opts);
                 if (!response.ok) throw new Error('Error fetching');
@@ -20,16 +20,16 @@ const useFetching = ( url, opts = {}) => {
                 setLoading(false);
             }
         };
-        fethData();
+        fetchData();
 
         return () => {
             setData(null);
             setError('');
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [url]);
 
-    return [data, loading, error]
+    return {data, setData, loading, error};
 }
 
-export default useFetching
+export default useFetching;

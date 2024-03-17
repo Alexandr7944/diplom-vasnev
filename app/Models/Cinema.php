@@ -14,5 +14,7 @@ class Cinema extends Model
         'numberOfRows',
         'numberOfSeat',
         'isActive',
+        'priceTicket',
+        'priceTicketVIP',
     ];
 }

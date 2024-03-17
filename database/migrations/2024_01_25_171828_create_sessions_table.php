@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,10 +15,8 @@ return new class extends Migration
             $table->timestamps();
             $table->date('timeStart');
             $table->date('timeEnd');
-            $table->string('cinemaId');
-            $table->string('movieId');
-            $table->integer('priceTicket');
-            $table->integer('priceTicketVIP');
+            $table->integer('cinemaId');
+            $table->integer('movieId');
             $table->string('avatar');
         });
     }

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import {useState} from "react";
 import useOpenHeader from "@/hooks/useOpenHeader.js";
 
 const CinemasList = ({cinemas, setCinemas}) => {
@@ -23,7 +23,9 @@ const CinemasList = ({cinemas, setCinemas}) => {
                 name: cinemaName,
                 numberOfRows: 0,
                 numberOfSeat: 0,
-                isActive: false
+                isActive: false,
+                priceTicket: 0,
+                priceTicketVIP: 0,
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -55,9 +57,9 @@ const CinemasList = ({cinemas, setCinemas}) => {
                 }
                 <ul className="conf-step__list">
                     {cinemas.map((cinema) => (
-                        <li key={cinema.id}>{cinema.name}
+                        <li key={cinema.id}>{cinema.name + ' - '}
                             <button className="conf-step__button conf-step__button-trash"
-                                    onClick={() => cinemaDestroy(cinema.id)}></button>
+                                    onClick={() => cinemaDestroy(cinema.id)}/>
                         </li>
                     ))}
                 </ul>
@@ -69,10 +71,10 @@ const CinemasList = ({cinemas, setCinemas}) => {
                     : <>
                         <input type="text"
                                className="conf-step__input"
+                               style={{width: 300 + 'px'}}
                                placeholder="Название зала"
                                value={cinemaName}
-                               onChange={(e) => setCinemaName(e.target.value)}
-                        />
+                               onChange={(e) => setCinemaName(e.target.value)}/>
                         <button className="conf-step__button conf-step__button-accent"
                                 onClick={resetCinema}>
                             Отмена

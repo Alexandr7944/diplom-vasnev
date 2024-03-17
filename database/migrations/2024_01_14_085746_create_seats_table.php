@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('row');
             $table->integer('seat');
             $table->string('status');
-            $table->boolean('isEmploy');
         });
     }
 

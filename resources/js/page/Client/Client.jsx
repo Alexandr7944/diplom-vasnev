@@ -7,16 +7,21 @@ import Payment from "@/components/Payment.jsx";
 import Ticket from "@/components/Ticket.jsx";
 import Cabinet from "@/components/Cabinet.jsx";
 
-function Client(props) {
+function Client() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/client/" element={<Cabinet/>}/>
-                <Route path="/client/hall" element={<Hall/>}/>
-                <Route path="/client/payment" element={<Payment/>}/>
-                <Route path="/client/ticket" element={<Ticket/>}/>
-            </Routes>
-        </BrowserRouter>
+        <>
+            <header className="page-header">
+                <h1 className="page-header__title">Идём<span>в</span>кино</h1>
+            </header>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/client/" element={<Cabinet/>}/>
+                    <Route path="/hall/:id" element={<Hall/>}/>
+                    <Route path="/payment/:id" element={<Payment/>}/>
+                    <Route path="/ticket/:id" element={<Ticket/>}/>
+                </Routes>
+            </BrowserRouter>
+        </>
     );
 }
 

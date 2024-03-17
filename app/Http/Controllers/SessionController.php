@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cinema;
+use App\Models\Movie;
 use App\Models\Session;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class SessionController extends Controller
@@ -12,15 +15,23 @@ class SessionController extends Controller
      */
     public function index()
     {
-        return Session::all();
+        $session = Session::all();
+        return json_encode($session);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    public function findOne($id) {
+        $session = Session::find($id);
+        $session['cinema'] = Cinema::find($session['cinemaId']);
+        $session['movie'] = Movie::find($session['movieId']);
+        $tickets = Ticket::all()->where('sessionId', $id);
+        $ticketsIds = [];
+        foreach ($tickets as $ticket) {
+            $ticketsIds[] = $ticket['seatId'];
+        }
+        $tickets = $ticketsIds;
+
+        $session['tickets'] = $tickets;
+        return json_encode($session);
     }
 
     /**
@@ -29,46 +40,33 @@ class SessionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'cinemaId' => 'string',
-            'movieId' => 'string',
-            'priceTicket' => 'integer',
-            'priceTicketVIP' => 'integer',
-            'avatar' => 'string',
-            'timeStart' => 'date',
-            'timeEnd' => 'date',
+            'cinemaId' => '',
+            'movieId' => '',
+            'avatar' => '',
+            'timeStart' => '',
+            'timeEnd' => '',
         ]);
-        dd($data);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Session $session)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Session $session)
-    {
-        //
+        return Session::create($data);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Session $session)
+    public function update(Request $request, Session $id)
     {
-        //
+        return Session::find($id)
+            ->first()
+            ->update($request->all())
+            ->save();
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Session $session)
+    public function destroy(Session $id)
     {
-        //
+        Session::find($id)->first()->delete();
+        $test = Session::find($id);
+        return response($test ?? 'OK', 200);
     }
 }

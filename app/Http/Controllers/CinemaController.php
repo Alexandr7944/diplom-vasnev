@@ -27,28 +27,14 @@ class CinemaController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'string',
-            'numberOfRows' => 'number',
-            'numberOfSeat' => 'number',
-            'isActive' => 'boolean',
+            'name' => '',
+            'numberOfRows' => '',
+            'numberOfSeat' => '',
+            'isActive' => '',
+            'priceTicket' => '',
+            'priceTicketVIP' => '',
         ]);
         return Cinema::create($data);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cinema $cinema)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cinema $cinema)
-    {
-        //
     }
 
     /**
@@ -73,5 +59,3 @@ class CinemaController extends Controller
         return response($test ?? 'OK', 200);
     }
 }
-
-

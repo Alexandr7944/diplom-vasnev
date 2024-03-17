@@ -12,7 +12,6 @@ class Seat extends Model
         'cinemaId',
         'row',
         'seat',
-        'status',
-        'isEmploy'
+        'status'
     ];
 }

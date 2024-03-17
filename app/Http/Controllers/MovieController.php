@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
+use App\Models\Session;
 use Illuminate\Http\Request;
 
 class MovieController extends Controller
@@ -12,15 +13,13 @@ class MovieController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $movies = Movie::all();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        foreach ($movies as $movie) {
+            $movie['sessions'] = Session::where('movieId', $movie['id'])->get();
+        }
+
+        return json_encode($movies);
     }
 
     /**
@@ -28,23 +27,16 @@ class MovieController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $data = $request->validate([
+            'name' => 'string',
+            'description' => 'string',
+            'length' => 'integer',
+            'avatar' => '',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Movie $movie)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Movie $movie)
-    {
-        //
+        $path = $request->file('avatar')->store('movies', 'public');
+        $data['avatar'] = $path;
+        return Movie::create($data);
     }
 
     /**
@@ -58,8 +50,15 @@ class MovieController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Movie $movie)
+    public function destroy(Movie $id)
     {
-        //
+        Movie::find($id)->first()->delete();
+        $sessions = Session::all();
+        foreach ($sessions as $session) {
+            if ($session['movieId'] == $id['id']) {
+                $session->delete();
+            }
+        }
+        return json_encode(Session::all());
     }
 }

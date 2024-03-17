@@ -20,7 +20,8 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
 
     const initSeats = async () => {
         const response = await fetch(`/api/seats/${checkedCinema.id}`);
-        if (!response.ok) throw new Error('Error fetching');
+        if (!response.ok)
+            throw new Error('Error fetching');
 
         const result = await response.json();
         if (!result.length)
@@ -95,42 +96,44 @@ const ConfigCinema = ({cinemas, setCinemas}) => {
 
     const updateCinema = async () => {
         const response = await fetch(`/api/cinemas/${checkedCinema.id}`, {
-            method: 'PATCH',
+            method: 'PUT',
             body: JSON.stringify({
                 ...checkedCinema,
                 ...rowsAndSeats
             }),
-            headers: {'Content-Type': 'application/json',}
+            headers: {'Content-Type': 'application/json'}
         });
         if (!response.ok)
             return console.error(response);
 
         const data = await response.json();
+        console.log(data)
         setCinemas(cinemas.map(cinema =>
             cinema.id === data.id ? data : cinema
         ));
     }
 
     const changeSeats = async (url, method, seat) => {
-        const response = await fetch(url, {
-            method,
-            body: JSON.stringify(seat),
-            headers: {'Content-Type': 'application/json',}
-        });
-        if (!response.ok)
-            throw new Error(response.statusText);
-        const data = await response.json();
-        console.log(data);
+        try {
+            const response = await fetch(url, {
+                method,
+                body: JSON.stringify(seat),
+                headers: {'Content-Type': 'application/json'}
+            });
+            if (!response.ok)
+                throw new Error(response.statusText);
+
+            const data = await response.json();
+            console.log(data);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     const update = async () => {
         try {
-            for await (const seat of seats.flat()) {
-                if (seat.id)
-                    await changeSeats(`/api/seats/${seat.id}`, 'delete', {});
-
-                await changeSeats(`/api/seats/store`, 'POST', seat);
-            }
+            await changeSeats(`/api/seats/cinema/${checkedCinema.id}`, 'DELETE', {});
+            await changeSeats(`/api/seats/store/cinema`, 'POST', seats.flat());
             await updateCinema();
         } catch (e) {
             console.error(e);

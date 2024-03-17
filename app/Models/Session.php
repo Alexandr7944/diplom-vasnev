@@ -14,8 +14,6 @@ class Session extends Model
         'timeEnd',
         'cinemaId',
         'movieId',
-        'priceTicket',
-        'priceTicketVIP',
         'avatar',
     ];
 }
